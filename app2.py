@@ -49,50 +49,76 @@ parental_edu = st.selectbox("Parental Education Level", ["High School", "Bachelo
 internet_quality = st.selectbox("Internet Quality", ["Good", "Average", "Poor"])
 extracurricular = st.selectbox("Extracurricular Participation?", ["Yes", "No"])
 
+# ==============================================================================
+# 🛠️ SESSION STATE MEMORY SYSTEM (PREVENTS NESTED BUTTON RESET)
+# ==============================================================================
+if "calculated" not in st.session_state:
+    st.session_state.calculated = False
+    st.session_state.pass_pct = 0.0
+    st.session_state.fail_pct = 0.0
+
+# LINE 52: Your original button action
 if st.button("Calculate Probability"):
+    st.session_state.calculated = True
+    
+    # 1. Your exact original DataFrame compilation matrix
     input_data = pd.DataFrame([{
-        'age': age, 'study_hours_per_day': study_hours, 'social_media_hours': social_media,
-        'netflix_hours': netflix_hours, 'attendance_percentage': attendance, 'sleep_hours': sleep_hours,
-        'exercise_frequency': exercise_freq, 'mental_health_rating': mental_health,
-        'gender': gender, 'part_time_job': part_time_job, 'diet_quality': diet_quality,
-        'parental_education_level': parental_edu, 'internet_quality': internet_quality,
+        'age': age, 
+        'study_hours_per_day': study_hours, 
+        'netflix_hours': netflix_hours, 
+        'attendance_percentage': attendance_percentage,
+        'sleep_hours': sleep_hours,
+        'exercise_frequency': exercise_freq, 
+        'gender': gender, 
+        'part_time_job': part_time_job, 
+        'diet_quality': diet_quality,
+        'parental_education_level': parental_edu, 
+        'internet_quality': internet_quality,
         'extracurricular_participation': extracurricular
     }])
     
+    # 2. Your original dummy mapping & machine learning predictions
     input_encoded = pd.get_dummies(input_data)
     input_final = input_encoded.reindex(columns=model_columns, fill_value=0)
-    
     probabilities = model.predict_proba(input_final)
-    fail_pct = probabilities[0][0] * 100
-    pass_pct = probabilities[0][1] * 100
+    
+    # Cache metrics inside session state memory so they don't disappear
+    st.session_state.fail_pct = probabilities[0][0] * 100
+    st.session_state.pass_pct = probabilities[0][1] * 100
+
+# ==============================================================================
+# 📊 PERSISTENT DISPLAY WINDOW (RUNS OUTSIDE THE FIRST BUTTON BLOCK)
+# ==============================================================================
+if st.session_state.calculated:
+    pass_pct = st.session_state.pass_pct
+    fail_pct = st.session_state.fail_pct
     
     st.markdown("---")
     if pass_pct >= 50:
-        st.success(f"### Result: Likely to Pass")
+        st.success("### Result: Likely to Pass")
     else:
-        st.error(f"### Result: At Academic Risk (Likely to Fail)")
+        st.error("### Result: At Academic Risk (Likely to Fail)")
         
     st.metric(label="Success Probability", value=f"{pass_pct:.1f}% Pass")
     st.metric(label="Risk Probability", value=f"{fail_pct:.1f}% Fail")
     st.progress(int(pass_pct))
+    
     # ==============================================================================
-    # 🎯 COMPLETELY ISOLATED PREMIUM TIERS (APPENDED TO THE BOTTOM)
+    # 🎯 COMPLETELY ISOLATED PREMIUM TIERS
     # ==============================================================================
     st.markdown("---")
     
     # --------------------------------------------------------------------------
-    # PATHWAY 1: SUCCESS/PASSING PREMIUM FEATURES ONLY
+    # SUCCESS/PASSING PREMIUM SUITE
     # --------------------------------------------------------------------------
     if pass_pct >= 50:
         st.info("💡 **Premium Optimization Available:** You qualify for zero-stress mastery resources designed to maximize your final grade boundaries beautifully without adding unnecessary academic pressure.")
         
-        # Gated Premium Button strictly for Passing Students
         if st.button("✨ Unlock Success Maximizer Vault (Premium)", key="premium_pass_features"):
             st.warning("🔒 **Monetization Pending Compliance:** This premium feature is simulated for demonstration purposes pending our official business registration certificate.")
             
             st.markdown("### 💎 Premium Success Optimization Suite")
             
-            # 1. Academic Burnout & Fatigue Index
             st.markdown("#### 1. Academic Burnout & Fatigue Index")
             calculated_burnout = min(100, int((study_hours * 12) + (10 - sleep_hours * 5)))
             st.write(f"Current Operational Stress Index: **{calculated_burnout}/100**")
@@ -100,18 +126,15 @@ if st.button("Calculate Probability"):
                 st.error("⚠️ CRITICAL FATIGUE WARNING: High study density paired with restricted sleep patterns detected.")
                 st.write("**Fatigue Mitigation Schedule:** You can safely scale back daily study blocks by 1.5 hours to reclaim healthy sleep cycles without dropping below a safe passing baseline.")
             else:
-                st.write("🟢 Your fatigue index is completely stable. Current metrics show highly sustainable balance.")
+                st.write("🟢 Your fatigue index is completely stable. Current routines do not show a critical threat of physical or mental breakdown.")
             
-            # 2. The Study-to-Free-Time Optimization Matrix
             st.markdown("#### 2. 'Study-to-Free-Time' Optimization Matrix")
             st.write("📈 **Efficiency Routine Generated:** Because your current habits are effective, you can safely scale back independent study blocks by **1.5 hours daily**.")
             st.write("Your modified schedule reallocates that time into guilt-free rest or hobbies while comfortably preserving your high marks.")
             
-            # 3. Automated Sleep & Cognitive Recovery Mapping
             st.markdown("#### 3. Automated Sleep & Cognitive Recovery Mapping")
             st.write(f"🧠 **AI Sleep Window Anchors:** To maximize cognitive retention during heavy study weeks, your profile requires a fixed bedtime and wake-up cycle calculated to preserve REM cycles based on your current {sleep_hours} baseline hours.")
             
-            # 4. Personal Syllabus Weighting Routine Builder
             st.markdown("#### 4. Personal 'Syllabus Weighting' Routine Builder")
             st.write("🎯 **Active Recall Distribution Matrix Applied to Your Study Blocks:**")
             weighting_data = {
@@ -120,15 +143,12 @@ if st.button("Calculate Probability"):
             }
             st.table(pd.DataFrame(weighting_data))
             
-            # 5. The Continuous Assessment Buffer Calculator
             st.markdown("#### 5. Continuous Assessment Buffer Calculator")
             st.write("🛡️ **Academic Cushion Analysis:** Your input metrics indicate you have built a resilient academic barrier. You can afford to score significantly lower on unexpected exam questions and still pass the semester comfortably.")
             
-            # 6. The 'Social Media/Streaming' Recovery Plan
             st.markdown("#### 6. 'Social Media/Streaming' Recovery Plan")
             st.write(f"📱 **Automated Screen-Time Transition Tracker:** Active. Your system has designed a breakdown routine that safely scales down your logged {netflix_hours} streaming hours by 15 minutes every two days, automatically reallocating it to cognitive recovery.")
             
-            # 7. The 'Exam-Week Peak Performance' Protocol
             st.markdown("#### 7. 'Exam-Week Peak Performance' Protocol")
             st.write("🏁 **7-Day Countdown Taper Protocol Loaded:**")
             taper_data = {
@@ -142,18 +162,16 @@ if st.button("Calculate Probability"):
             st.table(pd.DataFrame(taper_data))
 
     # --------------------------------------------------------------------------
-    # PATHWAY 2: RISK/FAILING PREMIUM FEATURES ONLY
+    # RISK/FAILING PREMIUM SUITE
     # --------------------------------------------------------------------------
     else:
         st.info("💡 **Premium Resource Identified:** A targeted AI Lifestyle Calendar and optimized structural timetable are ready to deploy to stabilize your trajectory.")
         
-        # Gated Premium Button strictly for At-Risk Students
         if st.button("✨ Unlock AI Calendar & Personal Timetable (Premium)", key="premium_fail_features"):
             st.warning("🔒 **Monetization Pending Compliance:** This premium feature is simulated for demonstration purposes pending our official business registration certificate.")
             
             st.markdown("### 🗓️ Customized AI Lifestyle Recovery Roadmap")
             
-            # Dynamically transforms the exact variables from your sliders
             optimized_netflix = round(netflix_hours * 0.5, 1)
             reclaimed_hours = netflix_hours - optimized_netflix
             optimized_sleep = sleep_hours + min(2.0, reclaimed_hours)
