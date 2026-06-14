@@ -39,9 +39,9 @@ study_hours = st.number_input("Study Hours per Day", min_value=0.0, max_value=24
 attendance = st.number_input("Attendance Percentage (%)", min_value=0.0, max_value=100.0, value=75.0)
 sleep_hours = st.number_input("Sleep Hours per Night", min_value=0.0, max_value=24.0, value=7.0)
 social_media = st.number_input("Social Media Hours per Day", min_value=0.0, max_value=24.0, value=3.0)
-netflix_hours = st.number_input("Netflix Hours per Day", min_value=0.0, max_value=24.0, value=2.5)
+# 📑 UPDATED: Modified the label to display 2hrs 30mins clearly
+netflix_hours = st.number_input("Netflix Hours per Day (2.5 = 2hrs 30mins)", min_value=0.0, max_value=24.0, value=2.5)
 exercise_freq = st.slider("Exercise Frequency (Days per week)", 0, 7, 5)
-# 📑 UPDATED: Mental Health default baseline increased from 6 to 8
 mental_health = st.slider("Mental Health Rating (1-10)", 1, 10, 8)
 age = st.number_input("Age", min_value=15, max_value=100, value=20)
 
@@ -179,7 +179,7 @@ if st.session_state.calculated:
             st.table(pd.DataFrame(passing_schedule))
 
     # --------------------------------------------------------------------------
-    # PATHWAY B: RISK TIERS PREMIUM SUITE (Anything under 75% - LOADED EXPANSION)
+    # PATHWAY B: RISK TIERS PREMIUM SUITE (Anything under 75%)
     # --------------------------------------------------------------------------
     else:
         st.info(f"💡 **Premium Strategic Recovery Resource Activated:** Your profile falls within a monitored risk boundary ({pass_pct:.1f}% Passing Confidence). A hyper-targeted academic recovery suite and turnaround timetable are ready to deploy to stabilize your trajectory.")
@@ -187,7 +187,6 @@ if st.session_state.calculated:
         if st.button("✨ Unlock AI Academic Recovery Suite & Timetable (Premium)", key="premium_fail_features"):
             st.warning("🔒 **Monetization Pending Compliance:** This premium feature is simulated for demonstration purposes pending our official business registration certificate.")
             
-            # --- SECTOR 1: ROUTINE CORRECTION ---
             st.markdown("### 🗓️ 1. Customized AI Lifestyle Recovery Roadmap")
             optimized_netflix = round(netflix_hours * 0.5, 1)
             reclaimed_hours = netflix_hours - optimized_netflix
@@ -200,7 +199,6 @@ if st.session_state.calculated:
             *   **Core Study Density Scaling:** Upgraded daily core study target to a mandatory baseline of **{target_daily_study} hours** to aggressively catch up on model deficit weights.
             """)
             
-            # --- SECTOR 2: PERFORMANCE TIMETABLE ---
             st.markdown("### 📋 2. Your Optimized Structural Routine")
             schedule_data = {
                 "Daily Window": ["Morning Window", "Afternoon Block", "Evening Block", "Night Routine"],
@@ -213,7 +211,6 @@ if st.session_state.calculated:
             }
             st.table(pd.DataFrame(schedule_data))
             
-            # --- SECTOR 3: NEW ACADEMIC DEFICIT TRIAGE ---
             st.markdown("### 🛠️ 3. High-Yield Syllabus Triage Strategy")
             st.write("When backing up a failing grade, trying to read everything is a trap. You must follow the **80/20 Pareto Principle Rule**:")
             
@@ -227,7 +224,6 @@ if st.session_state.calculated:
             }
             st.table(pd.DataFrame(triage_data))
             
-            # --- SECTOR 4: EMERGENCY MATRIX ---
             st.markdown("### 🏁 4. Emergency Grade Recovery Matrix")
             st.write("Deploy these tactical operational protocols immediately to systematically secure missing grade boundaries:")
             
