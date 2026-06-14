@@ -35,21 +35,22 @@ except Exception as e:
     st.error("Dataset file 'student_habits_performance.csv' not found in the repository setup.")
 
 st.subheader("Daily Lifestyle Metrics")
-study_hours = st.number_input("Study Hours per Day", min_value=0.0, max_value=24.0, value=3.0)
-attendance = st.number_input("Attendance Percentage (%)", min_value=0.0, max_value=100.0, value=85.0)
+# 📑 UPDATED: Defaults set exactly to your Passing Profile criteria
+study_hours = st.number_input("Study Hours per Day", min_value=0.0, max_value=24.0, value=5.0)
+attendance = st.number_input("Attendance Percentage (%)", min_value=0.0, max_value=100.0, value=75.0)
 sleep_hours = st.number_input("Sleep Hours per Night", min_value=0.0, max_value=24.0, value=7.0)
-social_media = st.number_input("Social Media Hours per Day", min_value=0.0, max_value=24.0, value=2.0)
-netflix_hours = st.number_input("Netflix Hours per Day", min_value=0.0, max_value=24.0, value=1.5)
-exercise_freq = st.slider("Exercise Frequency (Days per week)", 0, 7, 3)
-mental_health = st.slider("Mental Health Rating (1-10)", 1, 10, 7)
+social_media = st.number_input("Social Media Hours per Day", min_value=0.0, max_value=24.0, value=3.0)
+netflix_hours = st.number_input("Netflix Hours per Day", min_value=0.0, max_value=24.0, value=2.5)
+exercise_freq = st.slider("Exercise Frequency (Days per week)", 0, 7, 5)
+mental_health = st.slider("Mental Health Rating (1-10)", 1, 10, 6)
 age = st.number_input("Age", min_value=15, max_value=100, value=20)
 
 st.subheader("Categorical Information")
 gender = st.selectbox("Gender", ["Male", "Female"])
-part_time_job = st.selectbox("Has Part-Time Job?", ["Yes", "No"])
-diet_quality = st.selectbox("Diet Quality", ["Good", "Fair", "Poor"])
+part_time_job = st.selectbox("Has Part-Time Job?", ["Yes", "No"], index=1) # Defaults to 'No'
+diet_quality = st.selectbox("Diet Quality", ["Good", "Fair", "Poor"], index=0) # Defaults to 'Good'
 parental_edu = st.selectbox("Parental Education Level", ["High School", "Bachelor", "Master", "PhD"])
-internet_quality = st.selectbox("Internet Quality", ["Good", "Average", "Poor"])
+internet_quality = st.selectbox("Internet Quality", ["Good", "Average", "Poor"], index=0) # Defaults to 'Good'
 extracurricular = st.selectbox("Extracurricular Participation?", ["Yes", "No"])
 
 # ==============================================================================
@@ -65,13 +66,12 @@ st.markdown("---")
 if st.button("Calculate Probability", type="primary"):
     st.session_state.calculated = True
     
-    # 1. Compiles variables into a DataFrame with perfectly matched names
     input_data = pd.DataFrame([{
         'age': age, 
         'study_hours_per_day': study_hours, 
         'social_media_hours': social_media,
         'netflix_hours': netflix_hours, 
-        'attendance_percentage': attendance,  # FIXED: Now matches your variable perfectly
+        'attendance_percentage': attendance,  
         'sleep_hours': sleep_hours,
         'exercise_frequency': exercise_freq, 
         'mental_health_rating': mental_health,
@@ -83,7 +83,6 @@ if st.button("Calculate Probability", type="primary"):
         'extracurricular_participation': extracurricular
     }])
     
-    # 2. Runs predictions
     input_encoded = pd.get_dummies(input_data)
     input_final = input_encoded.reindex(columns=model_columns, fill_value=0)
     probabilities = model.predict_proba(input_final)
@@ -92,16 +91,20 @@ if st.button("Calculate Probability", type="primary"):
     st.session_state.pass_pct = float(probabilities[0][1] * 100)
 
 # ==============================================================================
-# 📊 DISPLAY WINDOW
+# 📊 DISPLAY WINDOW WITH CUSTOM RISK TIERS
 # ==============================================================================
 if st.session_state.calculated:
     pass_pct = st.session_state.pass_pct
     fail_pct = st.session_state.fail_pct
     
-    if pass_pct >= 50:
-        st.success("### Result: Likely to Pass")
+    if pass_pct >= 75.0:
+        st.success("### Result: Passing (Safe Baseline)")
+    elif pass_pct >= 65.0:
+        st.info("### Result: Low Risk")
+    elif pass_pct >= 50.0:
+        st.warning("### Result: Medium Risk")
     else:
-        st.error("### Result: At Academic Risk (Likely to Fail)")
+        st.error("### Result: High Risk (Likely to Fail)")
         
     st.metric(label="Success Probability", value=f"{pass_pct:.1f}% Pass")
     st.metric(label="Risk Probability", value=f"{fail_pct:.1f}% Fail")
@@ -110,9 +113,9 @@ if st.session_state.calculated:
     st.markdown("---")
     
     # --------------------------------------------------------------------------
-    # PATHWAY A: SUCCESS/PASSING PREMIUM SUITE
+    # PATHWAY A: SAFE / PASSING PREMIUM SUITE (75% and Above)
     # --------------------------------------------------------------------------
-    if pass_pct >= 50:
+    if pass_pct >= 75.0:
         st.info("💡 **Premium Optimization Available:** You qualify for zero-stress mastery resources designed to maximize your final grade boundaries beautifully without adding unnecessary academic pressure.")
         
         if st.button("✨ Unlock Success Maximizer Vault (Premium)", key="premium_pass_features"):
@@ -148,7 +151,7 @@ if st.session_state.calculated:
             st.write("🛡️ **Academic Cushion Analysis:** Your input metrics indicate you have built a resilient academic barrier. You can afford to score significantly lower on unexpected exam questions and still pass the semester comfortably.")
             
             st.markdown("#### 6. 'Social Media/Streaming' Recovery Plan")
-            st.write(f"📱 **Automated Screen-Time Transition Tracker:** Active. Your system has designed a breakdown routine that safely scales down your logged {netflix_hours} streaming hours by 15 minutes every two days, automatically reallocating it to cognitive recovery.")
+            st.write(f"📱 **Automated Screen-Time Transition Tracker:** Active. Your system has designed a breakdown routine that safely scales down your logged {netflix_hours} streaming hours by 15 minutes every two days, automatically reallocates it to cognitive recovery.")
             
             st.markdown("#### 7. 'Exam-Week Peak Performance' Protocol")
             taper_data = {
@@ -176,10 +179,10 @@ if st.session_state.calculated:
             st.table(pd.DataFrame(passing_schedule))
 
     # --------------------------------------------------------------------------
-    # PATHWAY B: RISK/FAILING PREMIUM SUITE
+    # PATHWAY B: RISK TIERS PREMIUM SUITE (Anything under 75%)
     # --------------------------------------------------------------------------
     else:
-        st.info(f"💡 **Premium Resource Identified:** Because your current attendance is at **{attendance}%**, a targeted AI Lifestyle Calendar and optimized structural timetable are ready to deploy to stabilize your trajectory.")
+        st.info(f"💡 **Premium Resource Identified:** Because your profile falls within a monitored risk boundary, a targeted AI Lifestyle Calendar and optimized structural timetable are ready to deploy to stabilize your trajectory.")
         
         if st.button("✨ Unlock AI Calendar & Personal Timetable (Premium)", key="premium_fail_features"):
             st.warning("🔒 **Monetization Pending Compliance:** This premium feature is simulated for demonstration purposes pending our official business registration certificate.")
